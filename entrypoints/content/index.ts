@@ -21,7 +21,9 @@ export default defineContentScript({
       static async getAccounts(): Promise<GitHubAccount[]> {
         try {
           const result = await browser.storage.local.get(STORAGE_KEYS.ACCOUNTS)
-          return result[STORAGE_KEYS.ACCOUNTS] || []
+          const accounts = result[STORAGE_KEYS.ACCOUNTS] || []
+          console.log('GitHub SwitchMe - Retrieved accounts from storage:', accounts)
+          return accounts
         } catch (error) {
           console.error('GitHub SwitchMe - Error getting accounts:', error)
           return []
@@ -31,19 +33,31 @@ export default defineContentScript({
       static async storeAccount(account: GitHubAccount): Promise<void> {
         try {
           const accounts = await this.getAccounts()
+          console.log('GitHub SwitchMe - Existing accounts before store:', accounts)
+
+          // Update or add the account
           const existingIndex = accounts.findIndex((a) => a.username === account.username)
+          let updatedAccounts: GitHubAccount[]
 
           if (existingIndex >= 0) {
-            accounts[existingIndex] = account
+            // Update existing account
+            updatedAccounts = accounts.map((a, index) =>
+              index === existingIndex ? { ...account, isCurrent: true } : { ...a, isCurrent: false }
+            )
           } else {
-            accounts.push(account)
+            // Add new account
+            updatedAccounts = [
+              ...accounts.map((a) => ({ ...a, isCurrent: false })),
+              { ...account, isCurrent: true },
+            ]
           }
 
           await browser.storage.local.set({
-            [STORAGE_KEYS.ACCOUNTS]: accounts,
+            [STORAGE_KEYS.ACCOUNTS]: updatedAccounts,
+            [STORAGE_KEYS.CURRENT_USER]: account.username,
           })
 
-          console.log('GitHub SwitchMe - Account stored:', account.username)
+          console.log('GitHub SwitchMe - Updated accounts in storage:', updatedAccounts)
         } catch (error) {
           console.error('GitHub SwitchMe - Error storing account:', error)
         }
@@ -52,7 +66,9 @@ export default defineContentScript({
       static async getCurrentUser(): Promise<string | null> {
         try {
           const result = await browser.storage.local.get(STORAGE_KEYS.CURRENT_USER)
-          return result[STORAGE_KEYS.CURRENT_USER] || null
+          const currentUser = result[STORAGE_KEYS.CURRENT_USER] || null
+          console.log('GitHub SwitchMe - Current user from storage:', currentUser)
+          return currentUser
         } catch (error) {
           console.error('GitHub SwitchMe - Error getting current user:', error)
           return null
@@ -200,37 +216,62 @@ export default defineContentScript({
 
         try {
           const accounts = await AccountStorage.getAccounts()
-          console.log('GitHub SwitchMe - Retrieved accounts:', accounts)
+          console.log('GitHub SwitchMe - Retrieved accounts for dropdown:', accounts)
+
+          if (!accounts || accounts.length === 0) {
+            console.log('GitHub SwitchMe - No accounts to show')
+            return
+          }
 
           // Position dropdown near profile button
           const profileButton = document.querySelector(
             '[data-target="react-partial-anchor.anchor"]'
           )
 
-          if (profileButton) {
-            const rect = profileButton.getBoundingClientRect()
-            const dropdownElement = this.dropdown as HTMLElement
-
-            dropdownElement.style.cssText = `
-              position: fixed;
-              top: ${rect.bottom + 2}px;
-              right: ${window.innerWidth - rect.right}px;
-              display: block;
-              min-width: 180px;
-              max-width: 300px;
-              background: var(--color-canvas-overlay);
-              border: 1px solid var(--color-border-default);
-              border-radius: 6px;
-              box-shadow: var(--color-shadow-large);
-              z-index: 100;
-            `
-
-            // Render accounts after positioning
-            this.renderAccounts(accounts)
-          } else {
+          if (!profileButton) {
             console.warn('GitHub SwitchMe - Profile button not found for positioning')
             return
           }
+
+          // Clear any existing content
+          this.dropdown.innerHTML = ''
+
+          // Set up dropdown styling
+          const rect = profileButton.getBoundingClientRect()
+          this.dropdown.style.cssText = `
+            position: fixed;
+            top: ${rect.bottom + 2}px;
+            right: ${window.innerWidth - rect.right}px;
+            display: block;
+            min-width: 200px;
+            max-width: 300px;
+            background: var(--color-canvas-overlay);
+            border: 1px solid var(--color-border-default);
+            border-radius: 6px;
+            box-shadow: var(--color-shadow-large);
+            z-index: 100;
+            padding: 8px 0;
+          `
+
+          // Create and append header
+          const header = document.createElement('div')
+          header.style.cssText = `
+            padding: 8px 8px 4px;
+            color: var(--color-fg-muted);
+            font-size: 12px;
+            font-weight: 500;
+          `
+          header.textContent = 'Switch account'
+          this.dropdown.appendChild(header)
+
+          // Create accounts container
+          const accountsContainer = document.createElement('div')
+          accountsContainer.style.cssText = `
+            padding: 4px 0;
+          `
+
+          // Render accounts into container
+          this.renderAccounts(accounts)
 
           this.isVisible = true
         } catch (error) {
@@ -437,37 +478,39 @@ export default defineContentScript({
           return
         }
 
-        console.log('GitHub SwitchMe - Current user detected:', currentUser.username)
+        console.log('GitHub SwitchMe - Current user detected:', currentUser)
 
-        // Get existing accounts
-        const existingAccounts = await AccountStorage.getAccounts()
-        console.log('GitHub SwitchMe - Existing accounts:', existingAccounts)
-
-        // Update current user's status
-        const updatedCurrentUser = {
-          ...currentUser,
-          isCurrent: true,
-          lastUsed: new Date(),
-        }
-
-        // Store the current user
-        await AccountStorage.storeAccount(updatedCurrentUser)
-
-        // Initialize dropdown manager
+        // Initialize dropdown manager first
         const dropdownManager = new DropdownManager()
 
         // Add mouseover handler to profile button
         const profileButton = document.querySelector('[data-target="react-partial-anchor.anchor"]')
 
-        if (profileButton) {
-          profileButton.addEventListener('mouseover', async () => {
-            await dropdownManager.show()
-          })
-
-          console.log('GitHub SwitchMe - Profile button mouseover handler added')
-        } else {
+        if (!profileButton) {
           console.warn('GitHub SwitchMe - Profile button not found')
+          return
         }
+
+        // Store the current user and mark as current
+        await AccountStorage.storeAccount({
+          ...currentUser,
+          isCurrent: true,
+          lastUsed: new Date(),
+        })
+
+        // Add mouseover handler
+        profileButton.addEventListener('mouseover', async () => {
+          const accounts = await AccountStorage.getAccounts()
+          console.log('GitHub SwitchMe - Accounts for dropdown:', accounts)
+
+          if (accounts && accounts.length > 0) {
+            await dropdownManager.show()
+          } else {
+            console.log('GitHub SwitchMe - No accounts to show in dropdown')
+          }
+        })
+
+        console.log('GitHub SwitchMe - Profile button mouseover handler added')
       } catch (error) {
         console.error('GitHub SwitchMe - Initialization error:', error)
       }
