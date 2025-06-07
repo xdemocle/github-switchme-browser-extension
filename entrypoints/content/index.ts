@@ -64,47 +64,80 @@ export default defineContentScript({
     class GitHubUserDetector {
       static detectCurrentUser(): GitHubAccount | null {
         try {
-          // Try different selectors for GitHub user detection
-          const selectors = [
-            'meta[name="user-login"]',
-            '[data-login]',
-            '.Header-link--profile img',
-            '.avatar-user',
-            '[aria-label="View profile and more"]',
-          ]
+          console.log('GitHub SwitchMe - Detecting current GitHub user...')
 
+          // For testing - create a test account if needed
+          // const createTestAccount = (): GitHubAccount => {
+          //   console.log('GitHub SwitchMe - CREATING TEST ACCOUNT')
+          //   return {
+          //     username: 'testuser',
+          //     displayName: 'Test User',
+          //     avatarUrl: 'https://github.com/identicons/testuser.png',
+          //     profileUrl: 'https://github.com/testuser',
+          //     lastUsed: new Date(),
+          //     isCurrent: true,
+          //   }
+          // }
+
+          // Try different selectors for GitHub user detection
           let username = ''
           let displayName = ''
           let avatarUrl = ''
           let profileUrl = ''
 
-          // Try to get username from meta tag first
+          // Try to get username from meta tag first (most reliable)
           const userMeta = document.querySelector(
             'meta[name="user-login"]'
           ) as HTMLMetaElement | null
           if (userMeta && userMeta.content) {
+            console.log('GitHub SwitchMe - Found username in meta tag:', userMeta.content)
             username = userMeta.content
           }
 
-          // Try to get user info from profile elements
+          // Alternative selectors for username
+          if (!username) {
+            // Try header dropdown
+            const summaryDetail = document.querySelector('details.Header-item summary.Header-link')
+            if (summaryDetail) {
+              const img = summaryDetail.querySelector('img')
+              if (img && img.alt) {
+                console.log('GitHub SwitchMe - Found username in header dropdown:', img.alt)
+                username = img.alt
+                avatarUrl = img.src || ''
+              }
+            }
+          }
+
+          // Try to get user info from profile elements with data-login attribute
           if (!username) {
             const profileElements = document.querySelectorAll('[data-login]')
             if (profileElements.length > 0) {
               const profileElement = profileElements[0] as HTMLElement | null
               username = profileElement?.getAttribute('data-login') || ''
+              console.log('GitHub SwitchMe - Found username in data-login attribute:', username)
             }
           }
 
-          // Try to get avatar and profile URL
-          const avatarImg = document.querySelector(
-            '.Header-link--profile img, .avatar-user'
-          ) as HTMLImageElement | null
-          if (avatarImg) {
-            avatarUrl = avatarImg.src || ''
+          // Try from avatar if still not found
+          if (!username) {
+            const avatarImg = document.querySelector(
+              '.Header-link--profile img, .avatar-user, [data-testid="user-avatar"] img'
+            ) as HTMLImageElement | null
 
-            // Try to get display name from alt text
-            if (avatarImg.alt && avatarImg.alt !== username) {
-              displayName = avatarImg.alt
+            if (avatarImg) {
+              // Get avatar URL
+              avatarUrl = avatarImg.src || ''
+
+              // Try to get username from alt text or title
+              if (avatarImg.alt) {
+                username = avatarImg.alt
+                displayName = avatarImg.alt
+                console.log('GitHub SwitchMe - Found username from avatar alt text:', username)
+              } else if (avatarImg.title) {
+                username = avatarImg.title
+                displayName = avatarImg.title
+                console.log('GitHub SwitchMe - Found username from avatar title:', username)
+              }
             }
           }
 
@@ -117,6 +150,13 @@ export default defineContentScript({
               displayName = username
             }
 
+            console.log('GitHub SwitchMe - Detected user:', {
+              username,
+              displayName,
+              avatarUrl,
+              profileUrl,
+            })
+
             return {
               username,
               displayName,
@@ -127,6 +167,11 @@ export default defineContentScript({
             }
           }
 
+          // Use a test account if nothing is detected (for development)
+          // Uncomment for testing
+          // return createTestAccount()
+
+          console.warn('GitHub SwitchMe - No user detected on GitHub')
           return null
         } catch (error) {
           console.error('GitHub SwitchMe - Error detecting user:', error)
@@ -173,8 +218,6 @@ export default defineContentScript({
         margin-top: 2px;
         `
 
-        debugger
-
         document.body.appendChild(this.dropdown!)
       }
 
@@ -198,45 +241,78 @@ export default defineContentScript({
       }
 
       async show(): Promise<void> {
-        if (!this.dropdown) return
-
         try {
-          const accounts = await AccountStorage.getAccounts()
-          console.log('GitHub SwitchMe - Retrieved accounts:', accounts)
+          // Create dropdown if it doesn't exist
+          if (!this.dropdown) {
+            this.createDropdown()
+          }
 
-          // Position dropdown near profile button
-          const profileButton = document.querySelector(
-            '[data-target="react-partial-anchor.anchor"]'
-          )
+          // Get accounts
+          const accounts = await AccountStorage.getAccounts()
+          console.log('GitHub SwitchMe - Retrieved accounts for dropdown:', accounts)
+
+          if (!accounts || accounts.length === 0) {
+            console.warn('GitHub SwitchMe - No accounts found, showing empty state')
+            // Still show dropdown with empty state
+          }
+
+          // Find profile button for positioning
+          const profileButtons = [
+            document.querySelector('.Header-link--profile'),
+            document.querySelector('summary.Header-link'),
+            document.querySelector('[data-target="react-partial-anchor.anchor"]'),
+            document.querySelector('[data-testid="user-avatar"]'),
+          ]
+
+          // Find the first working selector
+          const profileButton = profileButtons.find((button) => button !== null)
 
           if (profileButton) {
             const rect = profileButton.getBoundingClientRect()
             const dropdownElement = this.dropdown as HTMLElement
 
+            // Position the dropdown correctly
+            dropdownElement.style.display = 'block' // Make visible first
+            dropdownElement.style.position = 'fixed'
+            dropdownElement.style.top = `${rect.bottom + 2}px`
+            dropdownElement.style.right = `${window.innerWidth - rect.right}px`
+            dropdownElement.style.zIndex = '100'
+
+            // Clear and render accounts
+            dropdownElement.innerHTML = ''
+            this.renderAccounts(accounts)
+
+            console.log('GitHub SwitchMe - Dropdown positioned and displayed')
+          } else {
+            console.warn('GitHub SwitchMe - No profile button found for positioning')
+            // Position in top right as fallback
+            const dropdownElement = this.dropdown as HTMLElement
             dropdownElement.style.cssText = `
               position: fixed;
-              top: ${rect.bottom + 2}px;
-              right: ${window.innerWidth - rect.right}px;
+              top: 60px;
+              right: 20px;
               display: block;
-              min-width: 180px;
-              max-width: 300px;
-              background: var(--color-canvas-overlay);
-              border: 1px solid var(--color-border-default);
-              border-radius: 6px;
-              box-shadow: var(--color-shadow-large);
               z-index: 100;
             `
-
-            // Render accounts after positioning
+            dropdownElement.innerHTML = ''
             this.renderAccounts(accounts)
-          } else {
-            console.warn('GitHub SwitchMe - Profile button not found for positioning')
-            return
           }
 
           this.isVisible = true
+
+          // Close dropdown when clicking outside
+          setTimeout(() => {
+            document.addEventListener('click', this.handleOutsideClick, { once: true })
+            console.log('GitHub SwitchMe - Added document click listener')
+          }, 100)
         } catch (error) {
           console.error('GitHub SwitchMe - Error showing dropdown:', error)
+        }
+      }
+
+      private handleOutsideClick = (event: MouseEvent): void => {
+        if (this.dropdown && !this.dropdown.contains(event.target as Node)) {
+          this.hide()
         }
       }
 
@@ -431,42 +507,75 @@ export default defineContentScript({
       try {
         console.log('GitHub SwitchMe - Initializing...')
 
+        // Create a test account for development
+        const testAccount1 = {
+          username: 'github-user',
+          displayName: 'GitHub User',
+          avatarUrl: 'https://github.com/identicons/github-user.png',
+          profileUrl: 'https://github.com/github-user',
+          lastUsed: new Date(),
+          isCurrent: true,
+        }
+
+        const testAccount2 = {
+          username: 'octocat',
+          displayName: 'Octocat',
+          avatarUrl: 'https://github.com/identicons/octocat.png',
+          profileUrl: 'https://github.com/octocat',
+          lastUsed: new Date(Date.now() - 86400000),
+          isCurrent: false,
+        }
+
+        // Force store the test accounts for development
+        await AccountStorage.storeAccount(testAccount1)
+        await AccountStorage.storeAccount(testAccount2)
+
+        // Verify accounts are stored
+        const accounts = await AccountStorage.getAccounts()
+        console.log('GitHub SwitchMe - Test accounts stored:', accounts)
+
         // Detect current user
         const currentUser = GitHubUserDetector.detectCurrentUser()
 
-        if (!currentUser) {
-          console.log('GitHub SwitchMe - No user detected, user might not be logged in')
-          return
+        if (currentUser) {
+          console.log('GitHub SwitchMe - Current user detected:', currentUser.username)
+
+          // Update current user's status
+          const updatedCurrentUser = {
+            ...currentUser,
+            isCurrent: true,
+            lastUsed: new Date(),
+          }
+
+          // Store the current user
+          await AccountStorage.storeAccount(updatedCurrentUser)
         }
-
-        console.log('GitHub SwitchMe - Current user detected:', currentUser.username)
-
-        // Get existing accounts
-        const existingAccounts = await AccountStorage.getAccounts()
-        console.log('GitHub SwitchMe - Existing accounts:', existingAccounts)
-
-        // Update current user's status
-        const updatedCurrentUser = {
-          ...currentUser,
-          isCurrent: true,
-          lastUsed: new Date(),
-        }
-
-        // Store the current user
-        await AccountStorage.storeAccount(updatedCurrentUser)
 
         // Initialize dropdown manager
         const dropdownManager = new DropdownManager()
 
-        // Add mouseover handler to profile button
-        const profileButton = document.querySelector('[data-target="react-partial-anchor.anchor"]')
+        // Add click handler to profile button for GitHub
+        const profileButtons = [
+          document.querySelector('.Header-link--profile'),
+          document.querySelector('summary.Header-link'),
+          document.querySelector('[data-target="react-partial-anchor.anchor"]'),
+          document.querySelector('[data-testid="user-avatar"]'),
+        ]
+
+        // Find the first working selector
+        const profileButton = profileButtons.find((button) => button !== null)
 
         if (profileButton) {
-          profileButton.addEventListener('mouseover', async () => {
+          // Use click instead of mouseover for better control
+          profileButton.addEventListener('click', async (event) => {
+            event.preventDefault()
+            event.stopPropagation()
+
             await dropdownManager.show()
+            console.log('GitHub SwitchMe - Dropdown shown on click')
           })
 
-          console.log('GitHub SwitchMe - Profile button mouseover handler added')
+          console.log('GitHub SwitchMe - Profile button click handler added')
         } else {
           console.warn('GitHub SwitchMe - Profile button not found')
         }
