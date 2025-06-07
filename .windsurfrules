@@ -1,0 +1,143 @@
+# GitHub SwitchMe Browser Extension - Windsurf Rules
+
+(Optimized for Claude Sonnet 4)
+
+## Project Context
+
+project_name: "github-switchme-browser-extension"
+project_type: "browser_extension"
+base_repo: "<https://github.com/xdemocle/linkedin-full-width-extension>"
+target_platform: "cross_browser"
+primary_browser: "chrome"
+
+## Tech Stack
+
+stack:
+  runtime: "browser_extension_manifest_v3"
+  language: "typescript"
+  package_manager: "pnpm"
+  build_tool: "webpack"
+  styling: "css_modules"
+  testing: "jest"
+
+## File Structure Rules
+
+structure:
+
+- "Keep original extension structure from LinkedIn repo"
+- "Remove ALL LinkedIn business logic"
+- "Maintain TypeScript configuration"
+- "Keep build pipeline intact"
+- "Use pnpm for all package management"
+
+## Code Standards
+
+coding_rules:
+
+- "Use TypeScript strict mode"
+- "Follow browser extension best practices"
+- "Match GitHub's CSS variable naming"
+- "Implement proper error boundaries"
+- "Use async/await for storage operations"
+- "Follow manifest v3 patterns"
+
+## GitHub Integration Rules
+
+github_rules:
+
+- "Target ONLY github.com domain"
+- "Use GitHub's existing CSS classes when possible"
+- "Match dark/light theme automatically"
+- "Don't break existing GitHub functionality"
+- "Inject dropdown near profile icon"
+- "Store minimal user data (username, avatar, profile URL)"
+
+## UI/UX Guidelines
+
+ui_rules:
+
+- "Follow prototype image exactly"
+- "Use GitHub's native styling patterns"
+- "Smooth animations under 200ms"
+- "Mobile responsive design"
+- "Proper z-index management"
+- "Accessible keyboard navigation"
+
+## Security & Privacy
+
+security_rules:
+
+- "NO password storage ever"
+- "Local storage only, no external APIs"
+- "Minimal permissions request"
+- "Respect user privacy"
+- "Handle expired sessions gracefully"
+
+## Performance Targets
+
+performance:
+
+- "Bundle size < 200KB"
+- "Injection speed < 100ms"
+- "Memory usage < 5MB"
+- "Zero impact on page load"
+
+## Development Workflow
+
+workflow:
+
+- "Clean LinkedIn logic first"
+- "Build core structure"
+- "Implement GitHub detection"
+- "Add dropdown injection"
+- "Test account switching"
+- "Polish animations"
+
+## Critical Implementation Notes
+
+critical_notes:
+
+- "The extension MUST reduce clicks from 3 to 1"
+- "Dropdown must feel native to GitHub"
+- "Handle multiple GitHub page layouts"
+- "Account detection should be automatic"
+- "Switching should preserve current page context"
+
+## File Priorities
+
+file_priorities:
+  1: "manifest.json - clean and update for GitHub"
+  2: "content script - GitHub DOM detection and injection"
+  3: "background script - account storage management"
+  4: "styles - match GitHub's design system"
+  5: "types - TypeScript interfaces for accounts"
+
+## Testing Requirements
+
+testing:
+
+- "Test on multiple GitHub pages (repo, issues, PRs)"
+- "Verify theme compatibility (dark/light)"
+- "Check mobile responsiveness"
+- "Test with 2+ GitHub accounts"
+- "Validate extension doesn't break GitHub features"
+
+## Common Pitfalls to Avoid
+
+avoid:
+
+- "Don't hardcode GitHub selectors (they change)"
+- "Don't store sensitive data"
+- "Don't interfere with GitHub's JavaScript"
+- "Don't make external network requests"
+- "Don't assume specific page structures"
+
+## Claude Sonnet 4 Specific Instructions
+
+claude_instructions:
+
+- "Analyze attached screenshots before coding"
+- "Reference prototype image for exact styling"
+- "Build complete working extension in first iteration"
+- "Focus on TypeScript accuracy and browser APIs"
+- "Prioritize clean, maintainable code structure"

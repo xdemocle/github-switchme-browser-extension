@@ -134,3 +134,21 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+.env
+.dev.vars
+
+.DS_Store
+*.tsbuildinfo
+
+# Cloudflare
+.mf
+.wrangler
+.dev.vars*
+
+.cache
+.env
+
+# build
+build/
+dist/
