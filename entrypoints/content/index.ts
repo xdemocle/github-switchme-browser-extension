@@ -225,7 +225,9 @@ export default defineContentScript({
         // Close dropdown when clicking outside
         document.addEventListener('click', (event) => {
           if (this.dropdown && !this.dropdown.contains(event.target as Node)) {
-            const profileButton = document.querySelector('.Header-link--profile')
+            // Find profile button for positioning
+            const profileButton = getProfileButton()
+
             if (profileButton && !profileButton.contains(event.target as Node)) {
               this.hide()
             }
@@ -257,15 +259,7 @@ export default defineContentScript({
           }
 
           // Find profile button for positioning
-          const profileButtons = [
-            document.querySelector('.Header-link--profile'),
-            document.querySelector('summary.Header-link'),
-            document.querySelector('[data-target="react-partial-anchor.anchor"]'),
-            document.querySelector('[data-testid="user-avatar"]'),
-          ]
-
-          // Find the first working selector
-          const profileButton = profileButtons.find((button) => button !== null)
+          const profileButton = getProfileButton()
 
           if (profileButton) {
             const rect = profileButton.getBoundingClientRect()
@@ -280,6 +274,7 @@ export default defineContentScript({
 
             // Clear and render accounts
             dropdownElement.innerHTML = ''
+
             this.renderAccounts(accounts)
 
             console.log('GitHub SwitchMe - Dropdown positioned and displayed')
@@ -396,6 +391,7 @@ export default defineContentScript({
         if (!this.dropdown) return
 
         const item = document.createElement('div')
+
         item.className = 'github-switchme-account-item'
         item.style.cssText = `
           display: flex;
@@ -425,6 +421,7 @@ export default defineContentScript({
 
         // Avatar
         const avatar = document.createElement('img')
+
         avatar.src = account.avatarUrl || `https://github.com/${account.username}.png?size=32`
         avatar.alt = account.displayName
         avatar.style.cssText = `
@@ -438,6 +435,7 @@ export default defineContentScript({
 
         // Account info
         const info = document.createElement('div')
+
         info.style.cssText = `
           flex: 1;
           min-width: 0;
@@ -445,7 +443,9 @@ export default defineContentScript({
         `
 
         const name = document.createElement('div')
+
         name.textContent = account.displayName
+
         name.style.cssText = `
           font-weight: 500;
           color: var(--color-fg-default);
@@ -456,7 +456,9 @@ export default defineContentScript({
         `
 
         const username = document.createElement('div')
+
         username.textContent = `@${account.username}`
+
         username.style.cssText = `
           color: var(--color-fg-muted);
           font-size: 12px;
@@ -471,7 +473,9 @@ export default defineContentScript({
         // Current indicator
         if (isCurrent) {
           const indicator = document.createElement('div')
+
           indicator.textContent = '✓'
+
           indicator.style.cssText = `
             color: var(--color-success-fg);
             font-weight: bold;
@@ -487,6 +491,7 @@ export default defineContentScript({
 
         // Add to accounts list instead of dropdown directly
         const accountsList = this.dropdown!.querySelector('div:last-child')
+
         if (accountsList) {
           accountsList.appendChild(item)
         }
@@ -555,27 +560,20 @@ export default defineContentScript({
         const dropdownManager = new DropdownManager()
 
         // Add click handler to profile button for GitHub
-        const profileButtons = [
-          document.querySelector('.Header-link--profile'),
-          document.querySelector('summary.Header-link'),
-          document.querySelector('[data-target="react-partial-anchor.anchor"]'),
-          document.querySelector('[data-testid="user-avatar"]'),
-        ]
-
-        // Find the first working selector
-        const profileButton = profileButtons.find((button) => button !== null)
+        const profileButton = getProfileButton()
 
         if (profileButton) {
           // Use click instead of mouseover for better control
-          profileButton.addEventListener('click', async (event) => {
+          profileButton.addEventListener('mouseover', async (event) => {
             event.preventDefault()
             event.stopPropagation()
 
             await dropdownManager.show()
-            console.log('GitHub SwitchMe - Dropdown shown on click')
+
+            console.log('GitHub SwitchMe - Dropdown shown on mouseover')
           })
 
-          console.log('GitHub SwitchMe - Profile button click handler added')
+          console.log('GitHub SwitchMe - Profile button mouseover handler added')
         } else {
           console.warn('GitHub SwitchMe - Profile button not found')
         }
@@ -608,5 +606,17 @@ export default defineContentScript({
     })
 
     console.log('GitHub SwitchMe - Content script initialization complete')
+
+    function getProfileButton(): HTMLElement | null {
+      const profileButtons = [
+        document.querySelector('.Header-link--profile'),
+        document.querySelector('summary.Header-link'),
+        document.querySelector('[data-target="react-partial-anchor.anchor"]'),
+        document.querySelector('[data-testid="user-avatar"]'),
+      ]
+
+      // Find the first working selector
+      return (profileButtons.find((button) => button !== null) as HTMLElement) || null
+    }
   },
 })
