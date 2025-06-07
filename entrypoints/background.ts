@@ -9,8 +9,8 @@
 import { defineBackground } from 'wxt/utils/define-background'
 import {
   type GitHubAccount,
-  MessageType,
   type Message,
+  MessageType,
   STORAGE_KEYS,
 } from '../web-extension-config'
 
