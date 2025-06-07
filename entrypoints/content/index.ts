@@ -390,18 +390,15 @@ export default defineContentScript({
         // Initialize dropdown manager
         const dropdownManager = new DropdownManager();
 
-        // Add click handler to profile button
-        const profileButton = document.querySelector('.Header-link--profile');
+        // Add mouseover handler to profile button
+        const profileButton = document.querySelector('[data-target="react-partial-anchor.anchor"]');
 
         if (profileButton) {
-          profileButton.addEventListener('click', async (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
+          profileButton.addEventListener('mouseover', async () => {
             await dropdownManager.show();
           });
 
-          console.log('GitHub SwitchMe - Profile button click handler added');
+          console.log('GitHub SwitchMe - Profile button mouseover handler added');
         } else {
           console.warn('GitHub SwitchMe - Profile button not found');
         }
