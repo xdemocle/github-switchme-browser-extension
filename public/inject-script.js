@@ -9,14 +9,14 @@
 window.addEventListener('message', (event) => {
   // Validate the origin - only accept messages from the same window
   if (event.source !== window) {
-    return;
+    return
   }
 
-  const message = event.data;
+  const message = event.data
 
   // Check if this is a message from our extension
   if (message && message.source === 'linkedin-full-width-content') {
-    console.log('Injected script received message:', message);
+    console.log('Injected script received message:', message)
 
     // Handle style toggle messages
     if (message.action === 'toggleStyles') {
@@ -29,10 +29,10 @@ window.addEventListener('message', (event) => {
           state: message.state,
         },
         '*'
-      );
+      )
     }
   }
-});
+})
 
 // Notify the content script that the injected script is ready
 window.postMessage(
@@ -41,7 +41,7 @@ window.postMessage(
     action: 'injectedScriptReady',
   },
   '*'
-);
+)
 
 // Keep a heartbeat to ensure the content script knows we're still active
 setInterval(() => {
@@ -52,5 +52,5 @@ setInterval(() => {
       timestamp: Date.now(),
     },
     '*'
-  );
-}, 30000); // Send heartbeat every 30 seconds
+  )
+}, 30000) // Send heartbeat every 30 seconds

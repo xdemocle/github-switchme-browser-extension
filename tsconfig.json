@@ -28,9 +28,5 @@
     "web-extension-config.ts",
     "wxt.config.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    ".wxt"
-  ]
+  "exclude": ["node_modules", "dist", ".wxt"]
 }

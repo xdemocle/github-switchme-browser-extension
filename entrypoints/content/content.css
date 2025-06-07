@@ -26,10 +26,12 @@
 .github-switcher-dropdown {
   opacity: 0;
   transform: translateY(-4px);
-  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out;
 }
 
-.github-switcher-dropdown[style*="block"] {
+.github-switcher-dropdown[style*='block'] {
   opacity: 1;
   transform: translateY(0);
 }
@@ -140,7 +142,7 @@
     width: 260px;
     right: -40px; /* Adjust positioning on mobile */
   }
-  
+
   .github-switcher-name,
   .github-switcher-username {
     max-width: 140px;
@@ -152,7 +154,7 @@
   .github-switcher-dropdown {
     border-width: 2px;
   }
-  
+
   .github-switcher-item:hover {
     background-color: rgba(177, 186, 196, 0.25);
   }
@@ -163,7 +165,7 @@
   .github-switcher-dropdown {
     transition: none;
   }
-  
+
   .github-switcher-item {
     transition: none;
   }
@@ -197,6 +199,10 @@
 }
 
 @keyframes github-switcher-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

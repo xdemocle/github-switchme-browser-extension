@@ -16,7 +16,7 @@ export function createMockBrowser() {
   return {
     action: {
       setBadgeText: jest.fn(),
-      onClicked: { addListener: jest.fn() }
+      onClicked: { addListener: jest.fn() },
     },
     runtime: {
       id: 'test-extension-id',
@@ -25,25 +25,25 @@ export function createMockBrowser() {
       onConnect: { addListener: jest.fn() },
       sendMessage: jest.fn().mockResolvedValue({}),
       connect: jest.fn().mockReturnValue({
-        onDisconnect: { addListener: jest.fn() }
-      })
+        onDisconnect: { addListener: jest.fn() },
+      }),
     },
     tabs: {
       sendMessage: jest.fn().mockResolvedValue({}),
       query: jest.fn(),
-      onUpdated: { addListener: jest.fn() }
+      onUpdated: { addListener: jest.fn() },
     },
     storage: {
       local: {
         get: jest.fn().mockResolvedValue({ state: 'XL' }),
-        set: jest.fn().mockResolvedValue({})
-      }
+        set: jest.fn().mockResolvedValue({}),
+      },
     },
     management: {
-      onEnabled: { addListener: jest.fn() }
+      onEnabled: { addListener: jest.fn() },
     },
     scripting: {
-      executeScript: jest.fn()
-    }
-  };
+      executeScript: jest.fn(),
+    },
+  }
 }

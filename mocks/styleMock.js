@@ -13,5 +13,5 @@ export default {
     .global-nav__content {
       width: 100%;
     }
-  `
-};
+  `,
+}

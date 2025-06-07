@@ -1,5 +1,5 @@
-import { defineConfig } from 'wxt';
-import { targetWebsite, extensionName, extensionDescription } from './web-extension-config';
+import { defineConfig } from 'wxt'
+import { targetWebsite, extensionName, extensionDescription } from './web-extension-config'
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -19,4 +19,4 @@ export default defineConfig({
       extension_pages: "script-src 'self'; object-src 'self';",
     },
   },
-});
+})

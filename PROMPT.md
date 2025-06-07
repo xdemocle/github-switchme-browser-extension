@@ -83,13 +83,8 @@ github-switchme-browser-extension/
 
 ```json
 {
-  "permissions": [
-    "storage",
-    "activeTab"
-  ],
-  "host_permissions": [
-    "https://github.com/*"
-  ]
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://github.com/*"]
 }
 ```
 
@@ -134,12 +129,12 @@ github-switchme-browser-extension/
 ```typescript
 // Account interface
 interface GitHubAccount {
-  username: string;
-  displayName: string;
-  avatarUrl: string;
-  profileUrl: string;
-  isCurrent: boolean;
-  lastUsed: Date;
+  username: string
+  displayName: string
+  avatarUrl: string
+  profileUrl: string
+  isCurrent: boolean
+  lastUsed: Date
 }
 
 // Storage manager
@@ -156,17 +151,17 @@ class AccountStorage {
 ```typescript
 // Content script logic
 class GitHubSwitcher {
-  private dropdown: HTMLElement;
+  private dropdown: HTMLElement
 
   init() {
-    this.detectCurrentUser();
-    this.injectDropdown();
-    this.bindEvents();
+    this.detectCurrentUser()
+    this.injectDropdown()
+    this.bindEvents()
   }
 
   private detectCurrentUser() {
     // Extract user data from GitHub's DOM
-    const userMenu = document.querySelector('[data-login]');
+    const userMenu = document.querySelector('[data-login]')
     // Parse username, avatar, etc.
   }
 
@@ -185,13 +180,13 @@ class GitHubSwitcher {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.type) {
     case 'SWITCH_ACCOUNT':
-      handleAccountSwitch(message.username);
-      break;
+      handleAccountSwitch(message.username)
+      break
     case 'ADD_ACCOUNT':
-      storeNewAccount(message.account);
-      break;
+      storeNewAccount(message.account)
+      break
   }
-});
+})
 ```
 
 ## User Experience Flow
@@ -224,8 +219,8 @@ const ErrorStates = {
   NETWORK_ERROR: 'Connection issue, try again',
   SESSION_EXPIRED: 'Please log in to GitHub',
   RATE_LIMITED: 'Too many requests, wait a moment',
-  UNKNOWN_ERROR: 'Something went wrong'
-};
+  UNKNOWN_ERROR: 'Something went wrong',
+}
 ```
 
 ## Development Setup

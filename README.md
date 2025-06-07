@@ -74,7 +74,7 @@ Because switching GitHub accounts shouldn't feel like filing taxes. Simple probl
 
 ---
 
-*This extension respects GitHub's terms of service and only works with accounts you're already logged into.*
+_This extension respects GitHub's terms of service and only works with accounts you're already logged into._
 
 ## How to use
 
