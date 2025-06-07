@@ -5,14 +5,16 @@
  * and injects a dropdown menu for quick account switching.
  */
 
+// Import defineContentScript from WXT's utility module
+import { defineContentScript } from 'wxt/utils/define-content-script';
 import { type GitHubAccount, MessageType, type Message, STORAGE_KEYS } from '../../web-extension-config';
 
 export default defineContentScript({
   matches: ['https://github.com/*'],
   runAt: 'document_end',
   allFrames: false,
-}, () => {
-  
+  main() {
+
   console.log('GitHub SwitchMe - Content script loaded');
 
   // Storage management
@@ -31,7 +33,7 @@ export default defineContentScript({
       try {
         const accounts = await this.getAccounts();
         const existingIndex = accounts.findIndex(a => a.username === account.username);
-        
+
         if (existingIndex >= 0) {
           accounts[existingIndex] = account;
         } else {
@@ -41,7 +43,7 @@ export default defineContentScript({
         await browser.storage.local.set({
           [STORAGE_KEYS.ACCOUNTS]: accounts
         });
-        
+
         console.log('GitHub SwitchMe - Account stored:', account.username);
       } catch (error) {
         console.error('GitHub SwitchMe - Error storing account:', error);
@@ -96,7 +98,7 @@ export default defineContentScript({
         const avatarImg = document.querySelector('.Header-link--profile img, .avatar-user') as HTMLImageElement | null;
         if (avatarImg) {
           avatarUrl = avatarImg.src || '';
-          
+
           // Try to get display name from alt text
           if (avatarImg.alt && avatarImg.alt !== username) {
             displayName = avatarImg.alt;
@@ -106,7 +108,7 @@ export default defineContentScript({
         // Build profile URL
         if (username) {
           profileUrl = `https://github.com/${username}`;
-          
+
           // Use display name same as username if not found
           if (!displayName) {
             displayName = username;
@@ -166,7 +168,7 @@ export default defineContentScript({
         padding: 8px 0;
         margin-top: 2px;
       `;
-      
+
       document.body.appendChild(this.dropdown!);
     }
 
@@ -195,7 +197,7 @@ export default defineContentScript({
       try {
         const accounts = await AccountStorage.getAccounts();
         this.renderAccounts(accounts);
-        
+
         // Position dropdown near profile button
         const profileButton = document.querySelector('.Header-link--profile');
         if (profileButton) {
@@ -251,7 +253,7 @@ export default defineContentScript({
       // Show current account first if exists
       if (currentUser) {
         this.renderAccountItem(currentUser, true);
-        
+
         if (otherAccounts.length > 0) {
           const separator = document.createElement('div');
           separator.style.cssText = `
@@ -288,7 +290,7 @@ export default defineContentScript({
         item.addEventListener('mouseenter', () => {
           item.style.background = 'var(--color-neutral-muted, #f6f8fa)';
         });
-        
+
         item.addEventListener('mouseleave', () => {
           item.style.background = 'transparent';
         });
@@ -363,10 +365,10 @@ export default defineContentScript({
 
     private switchToAccount(account: GitHubAccount): void {
       console.log('GitHub SwitchMe - Switching to account:', account.username);
-      
+
       // Navigate to the account's GitHub profile
       window.location.href = account.profileUrl;
-      
+
       this.hide();
     }
   }
@@ -378,26 +380,27 @@ export default defineContentScript({
 
       // Detect current user
       const currentUser = GitHubUserDetector.detectCurrentUser();
-      
+
       if (currentUser) {
         console.log('GitHub SwitchMe - Current user detected:', currentUser.username);
-        
+
         // Store the current user
         await AccountStorage.storeAccount(currentUser);
-        
+
         // Initialize dropdown manager
         const dropdownManager = new DropdownManager();
-        
+
         // Add click handler to profile button
         const profileButton = document.querySelector('.Header-link--profile');
+
         if (profileButton) {
           profileButton.addEventListener('click', async (event) => {
             event.preventDefault();
             event.stopPropagation();
-            
+
             await dropdownManager.show();
           });
-          
+
           console.log('GitHub SwitchMe - Profile button click handler added');
         } else {
           console.warn('GitHub SwitchMe - Profile button not found');
@@ -434,5 +437,6 @@ export default defineContentScript({
     subtree: true
   });
 
-  console.log('GitHub SwitchMe - Content script initialization complete');
+    console.log('GitHub SwitchMe - Content script initialization complete');
+  }
 });

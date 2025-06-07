@@ -5,6 +5,8 @@
  * It provides persistent storage for GitHub accounts and facilitates account switching.
  */
 
+// Import defineBackground from WXT's utility module
+import { defineBackground } from 'wxt/utils/define-background';
 import { type GitHubAccount, MessageType, type Message, STORAGE_KEYS } from '../web-extension-config';
 
 export default defineBackground(() => {
@@ -35,7 +37,7 @@ export default defineBackground(() => {
       try {
         const accounts = await this.getAccounts();
         const existingIndex = accounts.findIndex(a => a.username === account.username);
-        
+
         if (existingIndex >= 0) {
           // Update existing account
           accounts[existingIndex] = account;
@@ -61,7 +63,7 @@ export default defineBackground(() => {
       try {
         const accounts = await this.getAccounts();
         const filteredAccounts = accounts.filter(a => a.username !== username);
-        
+
         await browser.storage.local.set({
           [STORAGE_KEYS.ACCOUNTS]: filteredAccounts
         });
@@ -182,11 +184,11 @@ export default defineBackground(() => {
    */
   browser.action?.onClicked?.addListener(async (tab) => {
     console.log('GitHub SwitchMe - Browser action clicked');
-    
+
     // For now, just log the current accounts
     const accounts = await accountManager.getAccounts();
     console.log('GitHub SwitchMe - Current accounts:', accounts);
-    
+
     // In the future, we could open a popup or navigate to GitHub
     if (tab.url?.includes('github.com')) {
       // Already on GitHub, could refresh or show notification
@@ -204,7 +206,7 @@ export default defineBackground(() => {
     // Only act on GitHub URLs when page is completely loaded
     if (changeInfo.status === 'complete' && tab.url?.includes('github.com')) {
       console.log('GitHub SwitchMe - GitHub page loaded:', tab.url);
-      
+
       // Send a message to the content script to refresh account detection
       browser.tabs.sendMessage(tabId, {
         type: MessageType.DETECT_USER
@@ -221,7 +223,7 @@ export default defineBackground(() => {
   browser.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local' && changes[STORAGE_KEYS.ACCOUNTS]) {
       console.log('GitHub SwitchMe - Accounts storage changed');
-      
+
       // Notify all GitHub tabs about the account changes
       browser.tabs.query({ url: 'https://github.com/*' }).then(tabs => {
         tabs.forEach(tab => {
@@ -242,7 +244,7 @@ export default defineBackground(() => {
    */
   browser.runtime.onInstalled.addListener((details) => {
     console.log('GitHub SwitchMe - Extension installed/updated:', details.reason);
-    
+
     if (details.reason === 'install') {
       console.log('GitHub SwitchMe - First time installation');
       // Could show welcome message or open GitHub
