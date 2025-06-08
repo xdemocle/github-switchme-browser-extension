@@ -7,7 +7,7 @@
 
 // Import defineContentScript from WXT's utility module
 import { defineContentScript } from 'wxt/utils/define-content-script'
-import { type GitHubAccount, STORAGE_KEYS } from '../../web-extension-config'
+import { type GitHubAccount, STORAGE_KEYS, Message, MessageType, debug } from '../../web-extension-config'
 
 export default defineContentScript({
   matches: ['https://github.com/*'],

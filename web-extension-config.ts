@@ -11,6 +11,9 @@ export const targetWebsite = 'https://github.com'
 // The website URL pattern used for matching in content scripts and permissions
 export const targetWebsitePattern = `${targetWebsite}/*`
 
+// Development flags
+export const debug = false // Set to true to enable test accounts and development features
+
 // Extension name and description
 export const extensionName = 'GitHub SwitchMe'
 export const extensionDescription = 'Quick switch between your GitHub accounts with zero hassle.'
