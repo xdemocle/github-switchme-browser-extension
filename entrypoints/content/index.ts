@@ -210,7 +210,7 @@ export default defineContentScript({
         display: none;
         min-width: 200px;
         max-width: 300px;
-        background: var(--color-canvas-overlay, #ffffff);
+        background: var(--bgColor-default, var(--color-canvas-default));
         border: 1px solid var(--color-border-default, #d0d7de);
         border-radius: 6px;
         box-shadow: var(--color-shadow-large, 0 8px 24px rgba(140, 149, 159, 0.2));
@@ -508,32 +508,45 @@ export default defineContentScript({
     }
 
     // Main initialization
+
+    // Create a test account for development
+    /*
+     * Test code for debugging/mock accounts
+     * See README.md for instructions on how to use this for development
+     *
+     * To enable mock accounts:
+     * 1. Uncomment this code block
+     * 2. Reload the extension
+     * 3. Visit GitHub to see the mock accounts in the dropdown
+     *
+     * This allows testing without requiring multiple real GitHub accounts
+     */
+    /*
+    const testAccount1 = {
+      username: 'github-user',
+      displayName: 'GitHub User',
+      avatarUrl: 'https://github.com/identicons/github-user.png',
+      profileUrl: 'https://github.com/github-user',
+      lastUsed: new Date(),
+      isCurrent: true,
+    }
+
+    const testAccount2 = {
+      username: 'octocat',
+      displayName: 'Octocat',
+      avatarUrl: 'https://github.com/identicons/octocat.png',
+      profileUrl: 'https://github.com/octocat',
+      lastUsed: new Date(Date.now() - 86400000),
+      isCurrent: false,
+    }
+
+    // Force store the test accounts for development
+    await AccountStorage.storeAccount(testAccount1)
+    await AccountStorage.storeAccount(testAccount2)
+    */
     const initializeSwitchMe = async (): Promise<void> => {
       try {
         console.log('GitHub SwitchMe - Initializing...')
-
-        // Create a test account for development
-        const testAccount1 = {
-          username: 'github-user',
-          displayName: 'GitHub User',
-          avatarUrl: 'https://github.com/identicons/github-user.png',
-          profileUrl: 'https://github.com/github-user',
-          lastUsed: new Date(),
-          isCurrent: true,
-        }
-
-        const testAccount2 = {
-          username: 'octocat',
-          displayName: 'Octocat',
-          avatarUrl: 'https://github.com/identicons/octocat.png',
-          profileUrl: 'https://github.com/octocat',
-          lastUsed: new Date(Date.now() - 86400000),
-          isCurrent: false,
-        }
-
-        // Force store the test accounts for development
-        await AccountStorage.storeAccount(testAccount1)
-        await AccountStorage.storeAccount(testAccount2)
 
         // Verify accounts are stored
         const accounts = await AccountStorage.getAccounts()
@@ -592,6 +605,7 @@ export default defineContentScript({
 
     // Re-initialize on GitHub's dynamic navigation
     let lastUrl = location.href
+
     const observer = new MutationObserver(() => {
       if (location.href !== lastUrl) {
         lastUrl = location.href
@@ -609,11 +623,13 @@ export default defineContentScript({
 
     function getProfileButton(): HTMLElement | null {
       const profileButtons = [
-        document.querySelector('.Header-link--profile'),
-        document.querySelector('summary.Header-link'),
-        document.querySelector('[data-target="react-partial-anchor.anchor"]'),
+        // document.querySelector('.Header-link--profile'),
+        // document.querySelector('summary.Header-link'),
         document.querySelector('[data-testid="user-avatar"]'),
+        document.querySelector('button[data-login]'),
       ]
+
+      // .Button--invisible.Button--medium.Button.Button--invisible-noVisuals
 
       // Find the first working selector
       return (profileButtons.find((button) => button !== null) as HTMLElement) || null

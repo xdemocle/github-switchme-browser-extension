@@ -102,3 +102,70 @@ entrypoints/
 ├── web-extension-config.ts # Shared configuration and types
 └── wxt.config.ts         # WXT framework configuration
 ```
+
+### Mock Accounts for Development
+
+To enable mock accounts for development:
+
+1. Uncomment the mock account code in `entrypoints/content/index.ts` line 512. (See the code block below at end of this readme, for backup)
+2. Reload the extension
+3. Visit GitHub to see the mock accounts in the dropdown
+
+This allows testing without requiring multiple real GitHub accounts.
+
+### Debugging
+
+To debug the extension:
+
+1. Open Chrome and go to `chrome://extensions/`
+2. Enable "Developer mode" in the top right
+3. Click "Inspect views: background page"
+
+This opens the background page in a new tab, where you can use the browser's developer tools to debug the extension.
+
+### Building for Production
+
+To build the extension for production:
+
+1. Run `pnpm build`
+2. The extension files will be in `dist/chrome-mv3/`
+
+## Mock Accounts Code Block (backup mock code)
+
+```typescript
+// Create a test account for development
+/*
+ * Test code for debugging/mock accounts
+ * See README.md for instructions on how to use this for development
+ *
+ * To enable mock accounts:
+ * 1. Uncomment this code block
+ * 2. Reload the extension
+ * 3. Visit GitHub to see the mock accounts in the dropdown
+ *
+ * This allows testing without requiring multiple real GitHub accounts
+ */
+/*
+  const testAccount1 = {
+    username: 'github-user',
+    displayName: 'GitHub User',
+    avatarUrl: 'https://github.com/identicons/github-user.png',
+    profileUrl: 'https://github.com/github-user',
+    lastUsed: new Date(),
+    isCurrent: true,
+  }
+
+  const testAccount2 = {
+    username: 'octocat',
+    displayName: 'Octocat',
+    avatarUrl: 'https://github.com/identicons/octocat.png',
+    profileUrl: 'https://github.com/octocat',
+    lastUsed: new Date(Date.now() - 86400000),
+    isCurrent: false,
+  }
+
+  // Force store the test accounts for development
+  await AccountStorage.storeAccount(testAccount1)
+  await AccountStorage.storeAccount(testAccount2)
+  */
+```
