@@ -66,19 +66,6 @@ export default defineContentScript({
         try {
           console.log('GitHub SwitchMe - Detecting current GitHub user...')
 
-          // For testing - create a test account if needed
-          // const createTestAccount = (): GitHubAccount => {
-          //   console.log('GitHub SwitchMe - CREATING TEST ACCOUNT')
-          //   return {
-          //     username: 'testuser',
-          //     displayName: 'Test User',
-          //     avatarUrl: 'https://github.com/identicons/testuser.png',
-          //     profileUrl: 'https://github.com/testuser',
-          //     lastUsed: new Date(),
-          //     isCurrent: true,
-          //   }
-          // }
-
           // Try different selectors for GitHub user detection
           let username = ''
           let displayName = ''
@@ -169,7 +156,9 @@ export default defineContentScript({
 
           // Use a test account if nothing is detected (for development)
           // Uncomment for testing
-          // return createTestAccount()
+          if (debug) {
+            return createTestAccount()
+          }
 
           console.warn('GitHub SwitchMe - No user detected on GitHub')
           return null
@@ -633,6 +622,20 @@ export default defineContentScript({
 
       // Find the first working selector
       return (profileButtons.find((button) => button !== null) as HTMLElement) || null
+    }
+
+    // For testing - create a test account if needed
+    function createTestAccount(): GitHubAccount {
+      console.log('GitHub SwitchMe - CREATING TEST ACCOUNT')
+
+      return {
+        username: 'testuser',
+        displayName: 'Test User',
+        avatarUrl: 'https://github.com/identicons/testuser.png',
+        profileUrl: 'https://github.com/testuser',
+        lastUsed: new Date(),
+        isCurrent: true,
+      }
     }
   },
 })
