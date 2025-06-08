@@ -1,14 +1,6 @@
 // We don't need to import jest as it's globally available in test files
 
 /**
- * State enum used across the extension
- */
-export enum State {
-  XL = 'XL',
-  M = 'M',
-}
-
-/**
  * Creates a mock browser API for testing
  * @returns A mock browser API object
  */

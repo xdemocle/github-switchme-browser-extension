@@ -1,7 +1,7 @@
 {
   "name": "github-switchme-browser-extension",
   "version": "1.0.0",
-  "description": "GitHub SwitchMe",
+  "description": "GitHub SwitchMe | Quick switch between your GitHub accounts with zero hassle.",
   "repository": "https://github.com/xdemocle/github-switchme-browser-extension.git",
   "author": {
     "name": "xdemocle",

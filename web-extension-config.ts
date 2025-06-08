@@ -5,6 +5,8 @@
  * Centralizing these values makes maintenance easier and reduces duplication.
  */
 
+import pkg from './package.json'
+
 // The target website URL (without trailing slash)
 export const targetWebsite = 'https://github.com'
 
@@ -15,8 +17,8 @@ export const targetWebsitePattern = `${targetWebsite}/*`
 export const debug = false // Set to true to enable test accounts and development features
 
 // Extension name and description
-export const extensionName = 'GitHub SwitchMe'
-export const extensionDescription = 'Quick switch between your GitHub accounts with zero hassle.'
+export const extensionName = pkg.name
+export const extensionDescription = pkg.description
 
 // GitHub Account Interface
 export interface GitHubAccount {
