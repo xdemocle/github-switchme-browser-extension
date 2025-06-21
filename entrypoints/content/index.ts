@@ -497,7 +497,6 @@ export default defineContentScript({
     }
 
     // Main initialization
-
     // Create a test account for development
     /*
      * Test code for debugging/mock accounts
@@ -539,7 +538,7 @@ export default defineContentScript({
 
         // Verify accounts are stored
         const accounts = await AccountStorage.getAccounts()
-        console.log('GitHub SwitchMe - Test accounts stored:', accounts)
+        console.log('GitHub SwitchMe - Accounts stored:', accounts)
 
         // Detect current user
         const currentUser = GitHubUserDetector.detectCurrentUser()

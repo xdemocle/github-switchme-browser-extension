@@ -3,6 +3,7 @@
  *
  * This script manages GitHub account storage and handles communication with content scripts.
  * It provides persistent storage for GitHub accounts and facilitates account switching.
+ * name="user_session_id" value="1690000000
  */
 
 // Import defineBackground from WXT's utility module
