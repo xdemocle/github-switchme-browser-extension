@@ -6,19 +6,19 @@
 
 project_name: "github-switchme-browser-extension"
 project_type: "browser_extension"
-base_repo: "<https://github.com/xdemocle/linkedin-full-width-extension>"
+base_repo: "<https://github.com/xdemocle/github-switchme-browser-extension>"
 target_platform: "cross_browser"
 primary_browser: "chrome"
 
 ## Tech Stack
 
 stack:
-  runtime: "browser_extension_manifest_v3"
-  language: "typescript"
-  package_manager: "pnpm"
-  build_tool: "webpack"
-  styling: "css_modules"
-  testing: "jest"
+runtime: "browser_extension_manifest_v3"
+language: "typescript"
+package_manager: "pnpm"
+build_tool: "webpack"
+styling: "css_modules"
+testing: "jest"
 
 ## File Structure Rules
 
@@ -106,11 +106,11 @@ critical_notes:
 ## File Priorities
 
 file_priorities:
-  1: "manifest.json - clean and update for GitHub"
-  2: "content script - GitHub DOM detection and injection"
-  3: "background script - account storage management"
-  4: "styles - match GitHub's design system"
-  5: "types - TypeScript interfaces for accounts"
+1: "manifest.json - clean and update for GitHub"
+2: "content script - GitHub DOM detection and injection"
+3: "background script - account storage management"
+4: "styles - match GitHub's design system"
+5: "types - TypeScript interfaces for accounts"
 
 ## Testing Requirements
 
